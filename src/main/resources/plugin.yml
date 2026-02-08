@@ -1,0 +1,10 @@
+name: EasyScript
+version: '${project.version}'
+main: me.luka.easyscript.EasyScript
+api-version: '1.21'
+depend: [PlaceholderAPI]
+commands:
+  easyscript:
+    description: Main command for EasyScript
+    aliases: [es]
+    permission: easyscript.admin
