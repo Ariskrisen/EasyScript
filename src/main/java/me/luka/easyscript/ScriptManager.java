@@ -6,6 +6,10 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class ScriptManager {
 
@@ -87,5 +91,21 @@ public class ScriptManager {
     public void reload() {
         unloadAll();
         loadScripts();
+    }
+
+    public Set<String> getActiveScriptNames() {
+        return activeScripts.keySet();
+    }
+
+    public Set<String> getAllScriptNames() {
+        File scriptsDir = new File(plugin.getDataFolder(), "scripts");
+        if (!scriptsDir.exists())
+            return Collections.emptySet();
+
+        File[] files = scriptsDir.listFiles((dir, name) -> name.endsWith(".js"));
+        if (files == null)
+            return Collections.emptySet();
+
+        return Arrays.stream(files).map(File::getName).collect(Collectors.toSet());
     }
 }

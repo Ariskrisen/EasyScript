@@ -48,8 +48,9 @@ const LEVELS = [
 
 // --- Helpers ---
 function isInOwnWorld(player) {
-    const result = placeholder.setPlaceholders(player, "%worldsystem_is_owner%");
-    return result === "yes" || result === "true";
+    const result = placeholder.setPlaceholders(player, "%worldsystem_is_creator%");
+    const lowered = result.toLowerCase();
+    return lowered === "yes" || lowered === "true" || lowered === "1";
 }
 
 function takeItems(player, material, amount) {
