@@ -56,6 +56,7 @@ public class ScriptManager {
             Context context = Context.newBuilder("js")
                     .allowHostAccess(HostAccess.ALL)
                     .allowHostClassLookup(s -> true)
+                    .hostClassLoader(plugin.getClass().getClassLoader())
                     .build();
 
             // Bind basic objects
