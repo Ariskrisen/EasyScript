@@ -109,6 +109,58 @@ events.on(PlayerCommandPreprocessEvent, (event) => {
     }
 });
 
+// --- Placeholders for DeluxeMenus ---
+if (papi) {
+    papi.registerPlaceholder("border", (player, params) => {
+        const uuid = player.getUniqueId().toString();
+        const pData = data[uuid] || { level: 0 };
+
+        if (params === "level") return pData.level.toString();
+        if (params === "size") return LEVELS[pData.level].size.toString();
+
+        const nextLevel = pData.level + 1;
+        if (nextLevel >= LEVELS.length) {
+            if (params === "next_size") return "МАКС";
+            if (params === "next_cost") return "Достигнут предел";
+            return "";
+        }
+
+        const nextInfo = LEVELS[nextLevel];
+        if (params === "next_size") return nextInfo.size.toString();
+        if (params === "next_cost") return nextInfo.cost;
+
+        return "";
+    });
+}
+
+// --- Event Handlers ---
+
+events.on(PlayerCommandPreprocessEvent, (event) => {
+    const msg = event.getMessage().toLowerCase();
+    const player = event.getPlayer();
+    const uuid = player.getUniqueId().toString();
+
+    if (msg.startsWith("/ws home")) {
+        if (!data[uuid]) {
+            data[uuid] = { first_time: true, level: 0 };
+            saveData();
+
+            // Schedule notification after 10 seconds (200 ticks)
+            scheduler.runLater(200, () => {
+                // Double check if player is online and in their world
+                if (player.isOnline() && isInOwnWorld(player)) {
+                    // Notify and open DeluxeMenu
+                    player.sendMessage("§c§lОЙ! §fМир ограничен!");
+                    player.sendMessage("§fВаш текущий мир имеет лимит. Открываю меню прокачки...");
+                    player.playSound(player.getLocation(), "entity.experience_orb.pickup", 1, 1);
+
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), `dm open border_upgrade ${player.getName()}`);
+                }
+            });
+        }
+    }
+});
+
 // --- Commands ---
 
 commands.register("upgrade-border", "Улучшить границу мира", "/upgrade-border", (sender, args) => {
@@ -117,8 +169,14 @@ commands.register("upgrade-border", "Улучшить границу мира", 
         return;
     }
 
-    const player = sender;
+    // Just open the menu
+    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), `dm open border_upgrade ${sender.getName()}`);
+});
 
+commands.register("easyscript-buy-border", "Internal command for menu", "", (sender, args) => {
+    if (!(sender instanceof org.bukkit.entity.Player)) return;
+
+    const player = sender;
     if (!isInOwnWorld(player)) {
         player.sendMessage("§cЭту команду можно использовать только в своем мире!");
         return;
@@ -134,18 +192,12 @@ commands.register("upgrade-border", "Улучшить границу мира", 
     }
 
     const levelInfo = LEVELS[nextLevel];
-    player.sendMessage("§b--- Улучшение границы мира ---");
-    player.sendMessage(`§fТекущий размер: §a${LEVELS[pData.level].size}`);
-    player.sendMessage(`§fСледующий размер: §e${levelInfo.size}`);
-    player.sendMessage(`§fСтоимость: §c${levelInfo.cost}`);
-    player.sendMessage("§fЧтобы подтвердить, пропишите: §b/upgrade-border confirm");
-
-    if (args.length > 0 && args[0] === "confirm") {
-        if (levelInfo.req(player)) {
-            pData.level = nextLevel;
-            data[uuid] = pData;
-            saveData();
-            updateBorder(player, levelInfo.size);
-        }
+    if (levelInfo.req(player)) {
+        pData.level = nextLevel;
+        data[uuid] = pData;
+        saveData();
+        updateBorder(player, levelInfo.size);
+        // Re-open menu to show updated status
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), `dm open border_upgrade ${player.getName()}`);
     }
 });

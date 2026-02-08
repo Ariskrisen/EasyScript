@@ -2,4 +2,5 @@
 /bug.md
 /.gitignore
 /.vscode
-/taget/*
+/taget/classes
+/deluxemenu_config.yml

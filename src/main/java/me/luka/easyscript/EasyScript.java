@@ -7,6 +7,8 @@ public class EasyScript extends JavaPlugin {
 
     private ScriptManager scriptManager;
 
+    private EasyScriptExpansion expansion;
+
     @Override
     public void onEnable() {
         // Create scripts folder
@@ -17,6 +19,11 @@ public class EasyScript extends JavaPlugin {
         if (!scriptsDir.exists()) {
             scriptsDir.mkdirs();
             saveResource("scripts/border_logic.js", false);
+        }
+
+        if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            this.expansion = new EasyScriptExpansion(this);
+            this.expansion.register();
         }
 
         this.scriptManager = new ScriptManager(this);
@@ -30,6 +37,10 @@ public class EasyScript extends JavaPlugin {
     @Override
     public void onDisable() {
         getLogger().info("EasyScript disabled!");
+    }
+
+    public EasyScriptExpansion getExpansion() {
+        return expansion;
     }
 
     public ScriptManager getScriptManager() {

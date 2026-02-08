@@ -70,6 +70,7 @@ public class ScriptManager {
             context.getBindings("js").putMember("events", events);
             context.getBindings("js").putMember("commands", commands);
             context.getBindings("js").putMember("scheduler", new ScriptScheduler(plugin));
+            context.getBindings("js").putMember("papi", plugin.getExpansion());
             context.getBindings("js").putMember("Bukkit", org.bukkit.Bukkit.class);
 
             String content = Files.readString(file.toPath());
@@ -85,6 +86,9 @@ public class ScriptManager {
     }
 
     public void unloadAll() {
+        if (plugin.getExpansion() != null) {
+            plugin.getExpansion().clearPlaceholders();
+        }
         activeScripts.values().forEach(ScriptInstance::unload);
         activeScripts.clear();
     }
