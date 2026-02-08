@@ -1,4 +1,4 @@
-target/
-bug.md
-.gitignore
-.vscode
+/target
+/bug.md
+/.gitignore
+/.vscode
