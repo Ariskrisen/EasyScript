@@ -3,4 +3,4 @@
 /.gitignore
 /.vscode
 /taget/classes
-/deluxemenu_config.yml
+/*.yml
